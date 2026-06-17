@@ -6,8 +6,6 @@ app.use(express.json());
 
 const PIXEL_ID = "823346850739984";
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
-
-// Nome exato da coluna "Ganho" no DKW
 const COLUNA_GANHO = "Aguardando dados";
 
 function hash(value) {
@@ -20,7 +18,6 @@ app.post("/webhook", async (req, res) => {
     const body = req.body;
     console.log("Evento recebido:", JSON.stringify(body, null, 2));
 
-    // Filtra apenas quando o negócio for movido para a coluna correta
     const toStep = body?.data?.toStep;
     if (toStep !== COLUNA_GANHO) {
       console.log(`Ignorando evento — coluna destino: "${toStep}"`);
@@ -51,9 +48,9 @@ app.post("/webhook", async (req, res) => {
           action_source: "physical_store",
           user_data: userData,
           custom_data: {
-  value: 1.00,
-  currency: "BRL",
-},
+            value: 1.00,
+            currency: "BRL",
+          },
         },
       ],
       access_token: ACCESS_TOKEN,
