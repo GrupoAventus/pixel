@@ -51,8 +51,9 @@ app.post("/webhook", async (req, res) => {
           action_source: "physical_store",
           user_data: userData,
           custom_data: {
-            currency: "BRL",
-          },
+  value: 1.00,
+  currency: "BRL",
+},
         },
       ],
       access_token: ACCESS_TOKEN,
