@@ -1,0 +1,15 @@
+{
+  "name": "dkw-meta-conversions",
+  "version": "1.0.0",
+  "description": "Webhook DKW -> Meta Conversions API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
