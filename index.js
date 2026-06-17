@@ -5,7 +5,10 @@ const app = express();
 app.use(express.json());
 
 const PIXEL_ID = "823346850739984";
-const ACCESS_TOKEN = "COLE_SEU_NOVO_TOKEN_AQUI";
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
+
+// Nome exato da coluna "Ganho" no DKW
+const COLUNA_GANHO = "Aguardando dados";
 
 function hash(value) {
   if (!value) return null;
@@ -15,16 +18,24 @@ function hash(value) {
 app.post("/webhook", async (req, res) => {
   try {
     const body = req.body;
-    console.log("Evento recebido do DKW:", JSON.stringify(body, null, 2));
+    console.log("Evento recebido:", JSON.stringify(body, null, 2));
 
-    // Adapte os campos abaixo conforme o payload real do DKW
-    const email = body.email || body.cliente?.email || null;
-    const phone = body.telefone || body.cliente?.telefone || null;
-    const name = body.nome || body.cliente?.nome || null;
-    const value = body.valor || body.deal?.value || 0;
+    // Filtra apenas quando o negócio for movido para a coluna correta
+    const toStep = body?.data?.toStep;
+    if (toStep !== COLUNA_GANHO) {
+      console.log(`Ignorando evento — coluna destino: "${toStep}"`);
+      return res.json({ success: true, message: "Evento ignorado" });
+    }
+
+    console.log(`✅ Negócio movido para "${COLUNA_GANHO}" — enviando para o Meta...`);
+
+    const contact = body?.data?.contact || {};
+    const name = contact.name || null;
+    const phone = contact.number || null;
+    const email = contact.email || null;
 
     const userData = {};
-    if (email) userData.em = [hash(email)];
+    if (email && email !== "") userData.em = [hash(email)];
     if (phone) userData.ph = [hash(phone.replace(/\D/g, ""))];
     if (name) {
       const parts = name.trim().split(" ");
@@ -40,7 +51,6 @@ app.post("/webhook", async (req, res) => {
           action_source: "physical_store",
           user_data: userData,
           custom_data: {
-            value: parseFloat(value) || 0,
             currency: "BRL",
           },
         },
